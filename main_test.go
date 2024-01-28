@@ -29,13 +29,11 @@ func TestMain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// defer kafkaContainer.Terminate(ctx)
 	brokers, err := c.Brokers(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Set the KAFKA_BROKERS environment variable to the IP and port of the Kafka container
 	flag.Set("kafkabrokers", brokers[0])
 	flag.Set("groupid", "myGroup")
 
@@ -45,13 +43,14 @@ func TestMain(t *testing.T) {
 		main()
 	}()
 
-	// verify that the message was consumed
+	// wait for message to be consumed
 	time.Sleep(2 * time.Second)
 	verifyMessageConsumed(t, ctx, c)
 	sigs <- syscall.SIGINT
 }
 
-func verifyMessageConsumed(t *testing.T, ctx context.Context, c *kafka.KafkaContainer) {	t.Helper()
+func verifyMessageConsumed(t *testing.T, ctx context.Context, c *kafka.KafkaContainer) {
+	t.Helper()
 	_, outputReader, err := c.Exec(ctx, []string{"bash", "-c", "/usr/bin/kafka-consumer-groups --bootstrap-server localhost:9092 --group myGroup --describe | awk 'NR>1 {print $4}'"})
 
 	if err != nil {
