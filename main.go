@@ -32,7 +32,7 @@ func main() {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":  *kafkaBrokers,
 		"group.id":           *groupID,
-		"auto.offset.reset":  "earliest", // start consuming from latest offset
+		"auto.offset.reset":  "earliest", // start consuming from earliest offset if `groupid` don't exists
 		"enable.auto.commit": false,      // disable auto commit
 	})
 
@@ -95,7 +95,7 @@ func handle(msg *kafka.Message) error {
 		log.Printf("incorrect body format, err: %v", err)
 		return nil // allow message to be commited
 	}
-	if err := handler(ctx, &p); err != nil { // err is nil here
+	if err := handler(ctx, &p); err != nil {
 		return err
 	}
 	return nil
